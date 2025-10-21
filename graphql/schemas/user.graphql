@@ -1,0 +1,33 @@
+type User {
+    id: ID
+    username: String
+    email: String!
+    firstname: String
+    lastname: String
+    created_at: DateTime
+    updated_at: DateTime
+}
+
+extend type Query {
+    user(id: ID!): User @field(resolver: "App\\Http\\Controllers\\UserController@show")
+}
+
+input UserInput {
+    firstname: String @rules(apply: ["string", "max:255"])
+    lastname: String  @rules(apply: ["string", "max:255"])
+    username: String! @rules(apply: ["string", "max:255", "unique:users,username"])
+    password: String! @rules(apply: ["string", "max:255"])
+    email: String!    @rules(apply: ["string", "max:255", "unique:users,email", "email"])
+}
+
+input UpdateUserInput {
+    firstname: String @rules(apply: ["string", "max:255"])
+    lastname: String  @rules(apply: ["string", "max:255"])
+    username: String @rules(apply: ["string", "max:255", "unique:users,username"])
+    password: String @rules(apply: ["string", "max:255"])
+}
+
+extend type Mutation {
+    createUser(input: UserInput @spread): User @field(resolver: "App\\Http\\Controllers\\UserController@createUser")
+    updateUser(input: UpdateUserInput, id: ID!): User @field(resolver: "App\\Http\\Controllers\\UserController@update")
+}
